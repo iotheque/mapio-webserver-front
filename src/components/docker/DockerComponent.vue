@@ -1,7 +1,8 @@
 <script lang="ts" setup>
     import { ref, onMounted, Ref } from 'vue'
     import axios from 'axios'
-    import { useToast } from 'vue-toastification'
+    import { toast } from 'vue3-toastify';
+    import 'vue3-toastify/dist/index.css';
 
     interface Service {
         selected: boolean
@@ -13,7 +14,6 @@
         status: string
     }
 
-    const toast = useToast()
     const DockerUrl = 'http://' + location.hostname + ':8456/docker'
     const DockerUrlCustom = 'http://' + location.hostname + ':8456/docker-custom'
 

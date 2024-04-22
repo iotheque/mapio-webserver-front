@@ -1,12 +1,12 @@
 <script lang="ts" setup>
     import axios from 'axios'
     import { ref } from 'vue'
-    import { useToast } from 'vue-toastification'
+    import { toast } from 'vue3-toastify';
+    import 'vue3-toastify/dist/index.css';
 
     const sshUrl = 'http://' + location.hostname + ':8456/ssh-setkey'
 
     const key = ref('')
-    const toast = useToast()
 
     function handleError(error: AxiosError<{ detail?: string }>) {
         if (error?.response?.data?.detail) {

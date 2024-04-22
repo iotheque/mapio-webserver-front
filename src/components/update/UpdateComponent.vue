@@ -1,7 +1,8 @@
 <script setup lang="ts">
     import axios from 'axios'
     import { ref, onMounted } from 'vue'
-    import { useToast } from 'vue-toastification'
+    import { toast } from 'vue3-toastify';
+    import 'vue3-toastify/dist/index.css';
 
     const loading = ref<boolean>(false)
     const updating = ref<boolean>(false)
@@ -10,7 +11,6 @@
         updateStatus: null,
         error: null,
     })
-    const toast = useToast()
 
     const statusUrl = 'http://' + location.hostname + ':8456/status'
     const uploadUrl = 'http://' + location.hostname + ':8456/update'

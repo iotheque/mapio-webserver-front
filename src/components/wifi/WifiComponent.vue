@@ -1,11 +1,10 @@
 <script lang="ts">
     import axios from 'axios'
     import { ref, onMounted, onBeforeUnmount } from 'vue'
-    import { useToast } from 'vue-toastification'
-
+    import { toast } from 'vue3-toastify';
+    import 'vue3-toastify/dist/index.css';
     const wifiUrl = 'http://' + location.hostname + ':8456/getScan'
     const setWifiUrl = 'http://' + location.hostname + ':8456/wifi'
-    const toast = useToast()
 
     export default {
         setup() {
