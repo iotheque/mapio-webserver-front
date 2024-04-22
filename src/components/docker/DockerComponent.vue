@@ -14,8 +14,8 @@
     }
 
     const toast = useToast()
-    const DockerUrl = 'http://' + '192.168.1.112' + ':8456/docker'
-    const DockerUrlCustom = 'http://' + '192.168.1.112' + ':8456/docker-custom'
+    const DockerUrl = 'http://' + location.hostname + ':8456/docker'
+    const DockerUrlCustom = 'http://' + location.hostname + ':8456/docker-custom'
 
     const services: Ref<Service[]> = ref(getAllServices())
     const runningContainers = ref([])

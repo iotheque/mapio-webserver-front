@@ -20,7 +20,7 @@ export const routes = [
     path: "/:pathMatch(.*)*",
     name: "error",
     component: () =>
-      import(/* webpackChunkName: "error" */ "@/views/errors/NotFoundPage.vue"),
+      import("@/views/errors/NotFoundPage.vue"),
   },
   ...AppsRoutes,
 ];

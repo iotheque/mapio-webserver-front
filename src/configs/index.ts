@@ -1,8 +1,7 @@
 import navigation from "./navigation";
 export default {
-  // product display information
   product: {
-    name: "Lux Vuetify3",
+    name: "MAPIO webserver",
     version: "1.0.0",
   },
 
