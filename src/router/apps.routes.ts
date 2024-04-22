@@ -1,58 +1,52 @@
-import todoRoutes from "@/views/app/todo/todoRoutes";
-import emailRoutes from "@/views/app/email/emailRoutes";
-
-
 export default [
-  {
-    path: "/apps/board",
-    name: "app-board",
-    component: () =>
-      import(
-        /* webpackChunkName: "utility-board" */ "@/views/utility/BoardPage.vue"
-      ),
-    meta: {
-      requiresAuth: true,
-      title: "Board",
-      layout: "ui",
-      category: "APP",
-    },
-  },
-  {
-    path: "/apps/email",
-    meta: {
-      requiresAuth: true,
-      layout: "ui",
-      category: "APP",
-      title: "Email",
-    },
-    component: () =>
-      import(
-        /* webpackChunkName: "app-email" */ "@/views/app/email/EmailApp.vue"
-      ),
-    children: [...emailRoutes],
-  },
-
-  {
-    path: "/apps/todo",
-    meta: {
-      requiresAuth: true,
-      layout: "ui",
-      category: "APP",
-      title: "Todo",
-    },
-    component: () =>
-      import(/* webpackChunkName: "app-todo" */ "@/views/app/todo/TodoApp.vue"),
-    children: [...todoRoutes],
-  },
-
   {
     path: "/apps/docker",
     meta: {
       requiresAuth: true,
       layout: "ui",
-      category: "APP",
+      category: "Setup",
       title: "Docker",
     },
     component: () => import("@/views/DockerView.vue"),
+  },
+  {
+    path: "/apps/wifi",
+    meta: {
+      requiresAuth: true,
+      layout: "ui",
+      category: "Setup",
+      title: "Wifi",
+    },
+    component: () => import("@/views/WifiView.vue"),
+  },
+  {
+    path: "/apps/ssh",
+    meta: {
+      requiresAuth: true,
+      layout: "ui",
+      category: "Setup",
+      title: "SSH",
+    },
+    component: () => import("@/views/SshView.vue"),
+  },
+  {
+    path: "/apps/update",
+    meta: {
+      requiresAuth: true,
+      layout: "ui",
+      category: "Setup",
+      title: "Update",
+    },
+    component: () => import("@/views/UpdateView.vue"),
+  },
+  {
+    path: "/apps/logs",
+    meta: {
+      requiresAuth: true,
+      layout: "ui",
+      category: "Setup",
+      title: "Logs",
+    },
+    component: () => import("@/views/LogsView.vue"),
   },
 ];
