@@ -24,8 +24,8 @@ const light = {
   colors: {
     background: '#FFFFFF',
     surface: '#FFFFFF',
-    primary: '#705CF6',
-    secondary: '#03DAC6',
+    primary: '#0277bd',
+    secondary: '#bbdefb',
     error: '#FC3C56',
     info: '#2196F3',
     success: '#4CAF50',
@@ -71,8 +71,8 @@ const light = {
 const dark = {
   dark: true,
   colors: {
-    primary: '#705CF6',
-    secondary: '#A8AAAE',
+    primary: '#0277bd',
+    secondary: '#bbdefb',
 
     success: '#28C76F',
     info: '#00CFE8',

@@ -7,15 +7,15 @@ export default {
       key: "",
       items: [
         {
-          key: "menu.dashboard",
-          text: "Dashboard",
-          link: "/dashboard",
+          key: "menu.home",
+          text: "Home",
+          link: "/home",
           icon: "mdi-view-dashboard-outline",
         },
       ],
     },
     {
-      text: "Apps",
+      text: "Setup",
       items: menuApps,
     },
   ],

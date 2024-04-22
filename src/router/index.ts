@@ -5,16 +5,16 @@ import AppsRoutes from "./apps.routes";
 export const routes = [
   {
     path: "/",
-    redirect: "/dashboard",
+    redirect: "/home",
     meta: {},
   } as any,
   {
-    path: "/dashboard",
+    path: "/home",
     meta: {
       requiresAuth: true,
       layout: "landing",
     },
-    component: () => import("@/views/pages/DashBoard.vue"),
+    component: () => import("@/views/pages/HomeView.vue"),
   },
   {
     path: "/:pathMatch(.*)*",
@@ -25,13 +25,8 @@ export const routes = [
   ...AppsRoutes,
 ];
 
-// 动态路由，基于用户权限动态去加载
-export const dynamicRoutes = [];
-
 const router = createRouter({
   history: createWebHistory(),
-  // hash模式：createWebHashHistory，history模式：createWebHistory
-  // process.env.NODE_ENV === "production"
 
   routes: routes,
   scrollBehavior(to, from, savedPosition) {

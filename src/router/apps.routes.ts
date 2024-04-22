@@ -44,4 +44,15 @@ export default [
       import(/* webpackChunkName: "app-todo" */ "@/views/app/todo/TodoApp.vue"),
     children: [...todoRoutes],
   },
+
+  {
+    path: "/apps/docker",
+    meta: {
+      requiresAuth: true,
+      layout: "ui",
+      category: "APP",
+      title: "Docker",
+    },
+    component: () => import("@/views/DockerView.vue"),
+  },
 ];
