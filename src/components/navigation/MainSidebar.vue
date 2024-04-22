@@ -45,7 +45,7 @@ const scrollToBottom = () => {
     <template v-if="!customizeTheme.miniSidebar" v-slot:prepend>
       <v-card height="100" class="logo-card">
         <h1 class="logo-text h-full">
-          <Icon class="mr-2" width="40" icon="solar:plain-bold-duotone" />
+          <img class="mr-2" src="@/assets/logo.svg" width="40" alt="40" />
           <span>MAPIO</span>
         </h1>
       </v-card>

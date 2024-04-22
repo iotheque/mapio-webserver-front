@@ -4,7 +4,6 @@
 
 <template>
     <div class="workflow ma-5">
-        <h1>OS updater</h1>
         <UpdateComponent />
     </div>
 </template>

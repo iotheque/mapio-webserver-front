@@ -4,7 +4,6 @@
 
 <template>
     <div class="wifi ma-5">
-        <h1>Wifi</h1>
         <WifiComponent />
     </div>
 </template>

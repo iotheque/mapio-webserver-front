@@ -97,7 +97,7 @@
 </script>
 
 <template>
-    <h1>Docker native</h1>
+    <h4>Docker native</h4>
     <v-table>
         <thead>
             <tr>
@@ -128,7 +128,7 @@
     <v-btn color="primary" class="ma-2 pa-2" @click="() => action('update')">Enable/Update</v-btn>
 
     <div class="docker ma-5">
-        <h1>Docker custom</h1>
+        <h4>Docker custom</h4>
         <v-table>
             <thead>
                 <tr>

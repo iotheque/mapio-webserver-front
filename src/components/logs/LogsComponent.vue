@@ -50,7 +50,6 @@
 
 <template>
     <div>
-        <h1>Docker compose logs :</h1>
         <pre class="console" v-html="formatLogs(logs)"></pre>
     </div>
 </template>
