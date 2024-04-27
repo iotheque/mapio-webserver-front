@@ -18,9 +18,7 @@ import MainAppbar from "@/components/toolbar/MainAppbar.vue";
   <!-- ---------------------------------------------- -->
   <!---MainArea -->
   <!-- ---------------------------------------------- -->
-  <v-main
-    class="main-container"
-  >
+  <v-main class="main-container">
     <!-- <GlobalLoading /> -->
 
     <div class="d-none d-sm-block px-3">

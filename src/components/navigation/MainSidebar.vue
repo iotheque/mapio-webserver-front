@@ -22,7 +22,7 @@ onMounted(() => {
 const scrollToBottom = () => {
   const contentArea = document.querySelector(".v-navigation-drawer__content");
   const activeItem = document.querySelector(
-    ".v-list-item--active"
+    ".v-list-item--active",
   ) as HTMLElement;
 
   setTimeout(() => {

@@ -7,7 +7,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "pretty": "prettier --write ."
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
+    "prettier": "3.2.5",
     "sass": "^1.72.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",

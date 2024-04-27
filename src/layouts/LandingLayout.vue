@@ -17,9 +17,7 @@ import MainAppbar from "@/components/toolbar/MainAppbar.vue";
   <!---MainArea -->
   <!-- ---------------------------------------------- -->
 
-  <v-main
-    class="main-container"
-  >
+  <v-main class="main-container">
     <!-- <GlobalLoading /> -->
     <div class="flex-fill pa-5">
       <slot></slot>

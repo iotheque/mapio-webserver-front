@@ -6,8 +6,7 @@ html {
       font-family: $font-family, sans-serif !important;
     }
 
-    font-family: $font-family,
-    sans-serif !important;
+    font-family: $font-family, sans-serif !important;
   }
 
   audio,
@@ -19,7 +18,6 @@ html {
   svg,
   video {
     display: block;
-
   }
 
   img,
@@ -45,7 +43,6 @@ html {
   // tables beautify
   .v-table {
     table {
-
       padding: 4px;
       padding-bottom: 8px;
 
@@ -63,10 +60,10 @@ html {
 
       tbody {
         tr {
-
           font-size: 0.875em;
-          transition: box-shadow 0.2s, transform 0.2s;
-
+          transition:
+            box-shadow 0.2s,
+            transform 0.2s;
 
           &:not(.v-data-table__selected):hover {
             box-shadow: 0 3px 15px -2px rgba(0, 0, 0, 0.12);
@@ -79,12 +76,13 @@ html {
 
   // theme : dark
   .v-theme--dark {
-
     .v-field--variant-solo,
     .v-card--variant-elevated,
     .v-btn--elevated,
     .v-app-bar {
-      box-shadow: rgb(145 158 171 / 30%) 0px 0px 2px 0px, rgb(145 158 171 / 2%) 0px 12px 24px -4px !important;
+      box-shadow:
+        rgb(145 158 171 / 30%) 0px 0px 2px 0px,
+        rgb(145 158 171 / 2%) 0px 12px 24px -4px !important;
     }
   }
 
@@ -103,5 +101,4 @@ html {
       border-color: rgba(var(--v-border-color), var(--v-border-opacity));
     }
   }
-
 }

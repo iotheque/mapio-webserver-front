@@ -135,7 +135,7 @@ const width = computed(() => {
 
 watch(
   () => name.value,
-  (newVal) => {}
+  (newVal) => {},
 );
 
 const jumpToAnchor = (id) => {
@@ -177,7 +177,7 @@ const categoryList = computed(() => {
         category_name_cn: item.category_name_cn,
       };
     }),
-    "category_id"
+    "category_id",
   );
 });
 

@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import AppsRoutes from "./apps.routes";
 
-
 export const routes = [
   {
     path: "/",
@@ -19,8 +18,7 @@ export const routes = [
   {
     path: "/:pathMatch(.*)*",
     name: "error",
-    component: () =>
-      import("@/views/errors/NotFoundPage.vue"),
+    component: () => import("@/views/errors/NotFoundPage.vue"),
   },
   ...AppsRoutes,
 ];

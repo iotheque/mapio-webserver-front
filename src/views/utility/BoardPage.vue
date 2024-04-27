@@ -306,7 +306,7 @@ const showDelete = (card) => {
 const deleteCard = () => {
   deleteDialog.value = false;
   const cardIndex = cards.value.findIndex(
-    (card) => card.id === cardToDelete.value.id
+    (card) => card.id === cardToDelete.value.id,
   );
 
   if (cardIndex !== -1) {
