@@ -2,7 +2,7 @@
 node_modules
 /dist
 /.vite_cache
-
+auto-imports.d.ts
 
 # local env files
 .env

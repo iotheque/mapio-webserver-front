@@ -29,6 +29,7 @@ function getAllServices() {
   AllServices.push({ selected: false, service: "Jellyfin" });
   AllServices.push({ selected: false, service: "Nextcloud" });
   AllServices.push({ selected: false, service: "Samba" });
+  AllServices.push({ selected: false, service: "Resticprofile" });
 
   return AllServices;
 }
@@ -38,8 +39,10 @@ function action(action: string) {
   const data = services.value.concat(select_action);
   const payload = JSON.stringify(data);
   axios.post(DockerUrl, payload).catch((error) => console.log(error));
-
   toast.success("Action has been asked, please wait ...");
+  services.value.forEach((service) => {
+    service.selected = false;
+  });
 }
 
 function actioncustom(action: string) {
@@ -47,10 +50,11 @@ function actioncustom(action: string) {
     .filter(([serviceName, isSelected]) => isSelected)
     .map(([serviceName, isSelected]) => serviceName);
   const payload = JSON.stringify({ selectedServices, select_action: action });
-
   axios.post(DockerUrlCustom, payload).catch((error) => console.log(error));
-
   toast.success("Action has been asked, please wait ...");
+  for (const key in switchValues.value) {
+    switchValues.value[key] = false;
+  }
 }
 
 const fetchData = () => {
@@ -75,6 +79,7 @@ const fetchData = () => {
         "nextcloud",
         "samba",
         "zigbee2mqtt",
+        "resticprofile",
       ];
       const containersWithStatus: Container[] = containersData
         .filter((container) => !excludedContainers.includes(container.name))
@@ -110,10 +115,10 @@ const interval = setInterval(() => {
     </thead>
     <tbody>
       <tr v-for="item in services" :key="item.service">
-        <td>{{ item.service }}</td>
         <td>
-          <v-switch v-model="item.selected" color="blue"></v-switch>
+          <v-checkbox v-model="item.selected" color="blue"></v-checkbox>
         </td>
+        <td>{{ item.service }}</td>
         <td class="text-center">
           <v-icon
             v-if="
@@ -146,17 +151,20 @@ const interval = setInterval(() => {
     <v-table>
       <thead>
         <tr>
-          <th class="text-left">Service name</th>
           <th class="text-left">Select</th>
+          <th class="text-left">Service name</th>
           <th class="text-center">Container status</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="item in runningContainersFiltered" :key="item.name">
-          <td>{{ item.name }}</td>
           <td>
-            <v-switch v-model="switchValues[item.name]" color="blue"></v-switch>
+            <v-checkbox
+              v-model="switchValues[item.name]"
+              color="blue"
+            ></v-checkbox>
           </td>
+          <td>{{ item.name }}</td>
 
           <td class="text-center">
             <v-icon class="status-icon" v-if="item.status === 'Up'"
