@@ -5,55 +5,46 @@ import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
 interface Service {
-  selected: boolean;
-  service: string;
+  name: string;
+  image: string;
+  version: string;
 }
 
 interface Container {
   name: string;
   status: string;
+  port: string;
 }
 
-const DockerUrl = "http://" + location.hostname + ":8456/docker";
-const DockerUrlCustom = "http://" + location.hostname + ":8456/docker-custom";
+const DockerUrl = "http://" + location.hostname + ":8456/compose";
+const DockerUrlCustom = "http://" + location.hostname + ":8456/docker";
 
-const services: Ref<Service[]> = ref(getAllServices());
-const runningContainers = ref([]);
-const switchValues: Ref<Record<string, boolean>> = ref({});
-const runningContainersFiltered = ref<Container[]>([]);
+const composeServices = ref<Service[]>([]);
+const composeSwitchValues: Ref<Record<string, boolean>> = ref({});
+const dockerSwitchValues: Ref<Record<string, boolean>> = ref({});
+const runningContainers = ref<Container[]>([]);
 
-function getAllServices() {
-  const AllServices: Service[] = [];
-  AllServices.push({ selected: false, service: "Homeassistant" });
-  AllServices.push({ selected: false, service: "Domoticz" });
-  AllServices.push({ selected: false, service: "Jellyfin" });
-  AllServices.push({ selected: false, service: "Nextcloud" });
-  AllServices.push({ selected: false, service: "Samba" });
-  AllServices.push({ selected: false, service: "Resticprofile" });
-
-  return AllServices;
-}
-
-function action(action: string) {
-  const select_action = [{ action: action }];
-  const data = services.value.concat(select_action);
-  const payload = JSON.stringify(data);
+function actioncompose(action: string) {
+  const selectedServices = Object.entries(composeSwitchValues.value)
+    .filter(([serviceName, isSelected]) => isSelected)
+    .map(([serviceName, isSelected]) => serviceName);
+  const payload = JSON.stringify({ selectedServices, select_action: action });
   axios.post(DockerUrl, payload).catch((error) => console.log(error));
   toast.success("Action has been asked, please wait ...");
-  services.value.forEach((service) => {
-    service.selected = false;
-  });
+  for (const key in composeSwitchValues.value) {
+    composeSwitchValues.value[key] = false;
+  }
 }
 
 function actioncustom(action: string) {
-  const selectedServices = Object.entries(switchValues.value)
+  const selectedServices = Object.entries(dockerSwitchValues.value)
     .filter(([serviceName, isSelected]) => isSelected)
     .map(([serviceName, isSelected]) => serviceName);
   const payload = JSON.stringify({ selectedServices, select_action: action });
   axios.post(DockerUrlCustom, payload).catch((error) => console.log(error));
   toast.success("Action has been asked, please wait ...");
-  for (const key in switchValues.value) {
-    switchValues.value[key] = false;
+  for (const key in dockerSwitchValues.value) {
+    dockerSwitchValues.value[key] = false;
   }
 }
 
@@ -61,9 +52,14 @@ const fetchData = () => {
   axios
     .get(DockerUrl)
     .then((response) => {
-      runningContainers.value = response.data.map(
-        (item: { name: string }) => item.name,
-      );
+      const servicesData: { name: string; image: string; version: string }[] =
+        response.data;
+      const services: Service[] = servicesData.map((service) => ({
+        name: service.name,
+        image: service.image,
+        version: service.version,
+      }));
+      composeServices.value = services;
     })
     .catch((error) => {
       console.error("GET error:", error);
@@ -71,23 +67,16 @@ const fetchData = () => {
   axios
     .get(DockerUrlCustom)
     .then((response) => {
-      const containersData: { name: string; status: string }[] = response.data;
-      const excludedContainers = [
-        "homeassistant",
-        "domoticz",
-        "jellyfin",
-        "nextcloud",
-        "samba",
-        "zigbee2mqtt",
-        "resticprofile",
-      ];
-      const containersWithStatus: Container[] = containersData
-        .filter((container) => !excludedContainers.includes(container.name))
-        .map((container) => ({
+      const containersData: { name: string; status: string; port: string }[] =
+        response.data;
+      const containersWithStatus: Container[] = containersData.map(
+        (container) => ({
           name: container.name,
           status: container.status,
-        }));
-      runningContainersFiltered.value = containersWithStatus;
+          port: container.port,
+        }),
+      );
+      runningContainers.value = containersWithStatus;
     })
     .catch((error) => {
       console.error("GET error:", error);
@@ -100,67 +89,60 @@ onMounted(() => {
 
 const interval = setInterval(() => {
   fetchData();
-}, 1000); // Refresh period 1000 millisecondes
+}, 5000); // Refresh period 1000 millisecondes
 </script>
 
 <template>
-  <h4>Docker native</h4>
+  <h4>Docker compose services</h4>
   <v-table>
     <thead>
       <tr>
-        <th class="text-left">Service name</th>
         <th class="text-left">Select</th>
-        <th class="text-center">Container status</th>
+        <th class="text-left">Service name</th>
+        <th class="text-left">Image</th>
+        <th class="text-left">Version</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="item in services" :key="item.service">
+      <tr v-for="item in composeServices" :key="item.name">
         <td>
-          <v-checkbox v-model="item.selected" color="blue"></v-checkbox>
+          <v-checkbox
+            v-model="composeSwitchValues[item.name]"
+            color="blue"
+          ></v-checkbox>
         </td>
-        <td>{{ item.service }}</td>
-        <td class="text-center">
-          <v-icon
-            v-if="
-              runningContainers.some(
-                (service) =>
-                  service.toLowerCase() === item.service.toLowerCase(),
-              )
-            "
-            class="status-icon"
-          >
-            mdi-play-circle-outline
-          </v-icon>
-          <v-icon v-else class="status-icon"> mdi-stop </v-icon>
-        </td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.image }}</td>
+        <td>{{ item.version }}</td>
       </tr>
     </tbody>
   </v-table>
-  <v-btn color="primary" class="ma-2 pa-2" @click="() => action('restart')"
-    >Start/Restart</v-btn
+  <v-btn
+    color="primary"
+    class="ma-2 pa-2"
+    @click="() => actioncompose('create')"
+    >Create/Recreate</v-btn
   >
-  <v-btn color="primary" class="ma-2 pa-2" @click="() => action('stop')"
-    >Stop</v-btn
-  >
-  <v-btn color="primary" class="ma-2 pa-2" @click="() => action('update')"
-    >Enable/Update</v-btn
+  <v-btn color="primary" class="ma-2 pa-2" @click="() => actioncompose('pull')"
+    >Pull/Update</v-btn
   >
 
   <div class="docker ma-5">
-    <h4>Docker custom</h4>
+    <h4>Docker Containers</h4>
     <v-table>
       <thead>
         <tr>
           <th class="text-left">Select</th>
           <th class="text-left">Service name</th>
           <th class="text-center">Container status</th>
+          <th class="text-left">Ports</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in runningContainersFiltered" :key="item.name">
+        <tr v-for="item in runningContainers" :key="item.name">
           <td>
             <v-checkbox
-              v-model="switchValues[item.name]"
+              v-model="dockerSwitchValues[item.name]"
               color="blue"
             ></v-checkbox>
           </td>
@@ -172,6 +154,7 @@ const interval = setInterval(() => {
             >
             <v-icon class="status-icon" v-else>mdi-stop</v-icon>
           </td>
+          <td>{{ item.port }}</td>
         </tr>
       </tbody>
     </v-table>
