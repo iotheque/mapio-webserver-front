@@ -18,11 +18,14 @@ interface Container {
 
 const DockerUrl = "http://" + location.hostname + ":8456/compose";
 const DockerUrlCustom = "http://" + location.hostname + ":8456/docker";
+const DockerUrlCheckUpdate =
+  "http://" + location.hostname + ":8456/docker-update";
 
 const composeServices = ref<Service[]>([]);
 const composeSwitchValues: Ref<Record<string, boolean>> = ref({});
 const dockerSwitchValues: Ref<Record<string, boolean>> = ref({});
 const runningContainers = ref<Container[]>([]);
+const updateInfo: Ref<Record<string, string>> = ref({});
 
 function actioncompose(action: string) {
   const selectedServices = Object.entries(composeSwitchValues.value)
@@ -46,6 +49,20 @@ function actioncustom(action: string) {
   for (const key in dockerSwitchValues.value) {
     dockerSwitchValues.value[key] = false;
   }
+}
+
+function checkforupdates() {
+  axios
+    .get(DockerUrlCheckUpdate)
+    .then((response) => {
+      const updates = response.data;
+      updates.forEach((serviceUpdate) => {
+        updateInfo.value[serviceUpdate.name] = serviceUpdate.update;
+      });
+    })
+    .catch((error) => {
+      console.error("GET error:", error);
+    });
 }
 
 const fetchData = () => {
@@ -136,6 +153,7 @@ const interval = setInterval(() => {
           <th class="text-left">Service name</th>
           <th class="text-center">Container status</th>
           <th class="text-left">Ports</th>
+          <th class="text-left">Update available</th>
         </tr>
       </thead>
       <tbody>
@@ -155,6 +173,7 @@ const interval = setInterval(() => {
             <v-icon class="status-icon" v-else>mdi-stop</v-icon>
           </td>
           <td>{{ item.port }}</td>
+          <td>{{ updateInfo[item.name] }}</td>
         </tr>
       </tbody>
     </v-table>
@@ -167,6 +186,9 @@ const interval = setInterval(() => {
     >
     <v-btn color="primary" class="ma-2 pa-2" @click="() => actioncustom('stop')"
       >Stop</v-btn
+    >
+    <v-btn color="primary" class="ma-2 pa-2" @click="() => checkforupdates()"
+      >Check for updates</v-btn
     >
   </div>
 </template>
