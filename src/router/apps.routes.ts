@@ -49,4 +49,14 @@ export default [
     },
     component: () => import("@/views/LogsView.vue"),
   },
+  {
+    path: "/apps/edit",
+    meta: {
+      requiresAuth: true,
+      layout: "ui",
+      category: "Setup",
+      title: "Edit Config",
+    },
+    component: () => import("@/views/EditView.vue"),
+  },
 ];

@@ -8,7 +8,7 @@ export default [
   {
     icon: "mdi-update",
     key: "menu.update",
-    text: "update",
+    text: "Update",
     link: "/apps/update",
   },
   {
@@ -28,5 +28,11 @@ export default [
     key: "menu.logs",
     text: "Logs",
     link: "/apps/logs",
+  },
+  {
+    icon: "mdi-file-edit",
+    key: "menu.edit",
+    text: "Edit Config",
+    link: "/apps/edit",
   },
 ];
