@@ -16,6 +16,7 @@
     "@mdi/font": "^7.4.47",
     "@yeger/vue-masonry-wall": "^5.0.10",
     "axios": "^1.6.8",
+    "js-yaml": "^4.1.0",
     "pinia-plugin-persist": "^1.0.0",
     "unplugin-auto-import": "^0.17.5",
     "vue": "^3.4.21",
