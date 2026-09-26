@@ -1,0 +1,63 @@
+name: Build Yocto release archive
+
+# Builds the static production bundle and publishes it as a GitHub Release
+# asset, ready to be consumed by the mapio-webserver-front Yocto recipe
+# (SRC_URI + SRC_URI[sha256sum]).
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Resolve version from tag
+        id: version
+        run: |
+          ref="${GITHUB_REF_NAME}"
+          echo "version=${ref#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Package archive
+        id: package
+        run: |
+          name="mapio-webserver-front-${{ steps.version.outputs.version }}.tar.gz"
+          tar czf "$name" -C dist .
+          sha256sum "$name" | tee "${name}.sha256sum"
+          echo "archive=${name}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.package.outputs.archive }}
+            ${{ steps.package.outputs.archive }}.sha256sum
+
+      - name: Summary
+        run: |
+          {
+            echo "### Yocto recipe values"
+            echo '```'
+            echo "SRC_URI = \"https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/${{ steps.package.outputs.archive }}\""
+            echo "SRC_URI[sha256sum] = \"$(cut -d' ' -f1 "${{ steps.package.outputs.archive }}.sha256sum")\""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
