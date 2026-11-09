@@ -1,63 +1,64 @@
 <script setup lang="ts">
-import axios from "axios";
-import { ref, onMounted } from "vue";
+import { api } from "@/api/client";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
+interface UpdateData {
+  status: string;
+  updateStatus: string | null;
+  error: string | null;
+}
+
+const POLL_PERIOD_MS = 2000;
+
 const loading = ref<boolean>(false);
 const updating = ref<boolean>(false);
-const updateData = ref({
+const updateData = ref<UpdateData>({
   status: "initializing...",
   updateStatus: null,
   error: null,
 });
 
-const statusUrl = "http://" + location.hostname + ":8456/status";
-const uploadUrl = "http://" + location.hostname + ":8456/update";
-const onUpload = (e: Event) => {
-  if (e.target.files.length === 1) {
-    loading.value = true;
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("bundle", file);
-    axios
-      .post(uploadUrl, formData, {
-        headers: {
-          "Content-Type": "mulitpart/data",
-        },
-      })
-      .then((res) => {
-        loading.value = false;
-        updating.value = true;
-        toast.success(
-          "Upload is successful, update is in progress, MAPIO will reboot at the end (few minutes)",
-        );
-      })
-      .catch((err) => {
-        console.error(e);
-        alert(err.message);
-      });
+let timer: ReturnType<typeof setTimeout> | undefined;
+
+const pollStatus = async () => {
+  try {
+    const res = await api.get<UpdateData>("/status");
+    updateData.value = res.data;
+    updating.value = res.data.status === "updating";
+  } catch {
+    // The device is unreachable while it reboots at the end of the update
   }
+  if (updating.value) timer = setTimeout(pollStatus, POLL_PERIOD_MS);
 };
-const getStatus = async () => {
-  await axios.get(statusUrl).then((res) => {
-    if (res.data) {
-      updateData.value = res.data;
-      if (updateData.value.status == "updating") {
-        updating.value = true;
-      }
-    }
-    return updateData.value;
-  });
+
+const onUpload = (e: Event) => {
+  const files = (e.target as HTMLInputElement).files;
+  if (files?.length !== 1) return;
+  loading.value = true;
+  const formData = new FormData();
+  formData.append("bundle", files[0]);
+  api
+    .post("/update", formData)
+    .then(() => {
+      updating.value = true;
+      toast.success(
+        "Upload is successful, update is in progress, MAPIO will reboot at the end (few minutes)",
+      );
+      pollStatus();
+    })
+    .catch((err) => {
+      console.error(err);
+      alert(err.response?.data?.error ?? err.message);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
-const pollStatus = () => {
-  getStatus().then((res) => {
-    if (res?.status !== "idle" && res?.updateStatus !== "done") {
-      setTimeout(pollStatus, 500);
-    }
-  });
-};
+
 onMounted(pollStatus);
+onBeforeUnmount(() => clearTimeout(timer));
 </script>
 <template>
   <p>updater status: {{ updateData.status }}</p>
@@ -74,6 +75,7 @@ onMounted(pollStatus);
       {{ updateData.updateStatus }}
     </p>
   </div>
+  <p v-if="updateData.error" class="error">{{ updateData.error }}</p>
 </template>
 <style scoped>
 .file-upload {

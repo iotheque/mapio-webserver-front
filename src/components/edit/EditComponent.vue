@@ -26,14 +26,12 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
+import { api } from "@/api/client";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import yaml from "js-yaml";
 
 const yamlContent = ref("");
-const LoadEditUrl = "http://" + location.hostname + ":8456/load-yaml";
-const SaveEditUrl = "http://" + location.hostname + ":8456/save-yaml";
 const isValid = ref(true);
 const errorMessage = ref("");
 
@@ -50,7 +48,7 @@ const validateYaml = () => {
 
 onMounted(async () => {
   try {
-    const res = await axios.get(LoadEditUrl);
+    const res = await api.get("/load-yaml");
     yamlContent.value = res.data.content;
     validateYaml();
   } catch (err) {
@@ -63,12 +61,14 @@ const saveYaml = async () => {
   if (!isValid.value) return;
 
   try {
-    await axios.post(SaveEditUrl, {
+    await api.post("/save-yaml", {
       content: yamlContent.value,
     });
     toast.success("Saved successfully!");
   } catch (err) {
-    toast.error("Can't save docker-compose.yml file");
+    toast.error(
+      err.response?.data?.error ?? "Can't save docker-compose.yml file",
+    );
     console.error(err);
   }
 };

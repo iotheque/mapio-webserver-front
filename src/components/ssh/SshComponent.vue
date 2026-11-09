@@ -1,26 +1,19 @@
 <script lang="ts" setup>
-import axios from "axios";
+import type { AxiosError } from "axios";
+import { api } from "@/api/client";
 import { ref } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
-const sshUrl = "http://" + location.hostname + ":8456/ssh-setkey";
-
 const key = ref("");
 
-function handleError(error: AxiosError<{ detail?: string }>) {
-  if (error?.response?.data?.detail) {
-    errorMsg.value = error.response.data.detail;
-  }
-  toast.error("Something wrong");
+function handleError(error: AxiosError<{ error?: string }>) {
+  toast.error(error.response?.data?.error ?? "Something wrong");
 }
 
 function set() {
-  const formData = new FormData();
-  const userkey = key.value;
-  formData.append("userkey", userkey);
-  axios
-    .post(sshUrl, formData)
+  api
+    .post("/ssh-setkey", { userkey: key.value })
     .then(() => toast.success("SSH add key successfully"))
     .catch(handleError);
 }

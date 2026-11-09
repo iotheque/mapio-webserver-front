@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, onMounted, Ref } from "vue";
-import axios from "axios";
+import { ref, onMounted, onBeforeUnmount, Ref } from "vue";
+import { api } from "@/api/client";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
@@ -16,10 +16,12 @@ interface Container {
   port: string;
 }
 
-const DockerUrl = "http://" + location.hostname + ":8456/compose";
-const DockerUrlCustom = "http://" + location.hostname + ":8456/docker";
-const DockerUrlCheckUpdate =
-  "http://" + location.hostname + ":8456/docker-update";
+interface ServiceUpdate {
+  name: string;
+  update: string;
+}
+
+const REFRESH_PERIOD_MS = 5000;
 
 const composeServices = ref<Service[]>([]);
 const composeSwitchValues: Ref<Record<string, boolean>> = ref({});
@@ -27,36 +29,46 @@ const dockerSwitchValues: Ref<Record<string, boolean>> = ref({});
 const runningContainers = ref<Container[]>([]);
 const updateInfo: Ref<Record<string, string>> = ref({});
 
-function actioncompose(action: string) {
-  const selectedServices = Object.entries(composeSwitchValues.value)
-    .filter(([serviceName, isSelected]) => isSelected)
-    .map(([serviceName, isSelected]) => serviceName);
-  const payload = JSON.stringify({ selectedServices, select_action: action });
-  axios.post(DockerUrl, payload).catch((error) => console.log(error));
-  toast.success("Action has been asked, please wait ...");
-  for (const key in composeSwitchValues.value) {
-    composeSwitchValues.value[key] = false;
+function selectedNames(switches: Record<string, boolean>): string[] {
+  return Object.entries(switches)
+    .filter(([, isSelected]) => isSelected)
+    .map(([name]) => name);
+}
+
+function sendAction(
+  path: string,
+  switches: Ref<Record<string, boolean>>,
+  action: string,
+) {
+  const selectedServices = selectedNames(switches.value);
+  if (selectedServices.length === 0) {
+    toast.warning("Select at least one item");
+    return;
+  }
+  api
+    .post(path, { selectedServices, select_action: action })
+    .then(() => toast.success("Action has been asked, please wait ..."))
+    .catch((error) => {
+      console.error(error);
+      toast.error(
+        "Action refused: " + (error.response?.data?.error ?? error.message),
+      );
+    });
+  for (const key in switches.value) {
+    switches.value[key] = false;
   }
 }
 
-function actioncustom(action: string) {
-  const selectedServices = Object.entries(dockerSwitchValues.value)
-    .filter(([serviceName, isSelected]) => isSelected)
-    .map(([serviceName, isSelected]) => serviceName);
-  const payload = JSON.stringify({ selectedServices, select_action: action });
-  axios.post(DockerUrlCustom, payload).catch((error) => console.log(error));
-  toast.success("Action has been asked, please wait ...");
-  for (const key in dockerSwitchValues.value) {
-    dockerSwitchValues.value[key] = false;
-  }
-}
+const actioncompose = (action: string) =>
+  sendAction("/compose", composeSwitchValues, action);
+const actioncustom = (action: string) =>
+  sendAction("/docker", dockerSwitchValues, action);
 
 function checkforupdates() {
-  axios
-    .get(DockerUrlCheckUpdate)
+  api
+    .get<ServiceUpdate[]>("/docker-update")
     .then((response) => {
-      const updates = response.data;
-      updates.forEach((serviceUpdate) => {
+      response.data.forEach((serviceUpdate) => {
         updateInfo.value[serviceUpdate.name] = serviceUpdate.update;
       });
     })
@@ -66,47 +78,32 @@ function checkforupdates() {
 }
 
 const fetchData = () => {
-  axios
-    .get(DockerUrl)
+  api
+    .get<Service[]>("/compose")
     .then((response) => {
-      const servicesData: { name: string; image: string; version: string }[] =
-        response.data;
-      const services: Service[] = servicesData.map((service) => ({
-        name: service.name,
-        image: service.image,
-        version: service.version,
-      }));
-      composeServices.value = services;
+      composeServices.value = response.data;
     })
     .catch((error) => {
       console.error("GET error:", error);
     });
-  axios
-    .get(DockerUrlCustom)
+  api
+    .get<Container[]>("/docker")
     .then((response) => {
-      const containersData: { name: string; status: string; port: string }[] =
-        response.data;
-      const containersWithStatus: Container[] = containersData.map(
-        (container) => ({
-          name: container.name,
-          status: container.status,
-          port: container.port,
-        }),
-      );
-      runningContainers.value = containersWithStatus;
+      runningContainers.value = response.data;
     })
     .catch((error) => {
       console.error("GET error:", error);
     });
 };
 
+let interval: ReturnType<typeof setInterval> | undefined;
+
 onMounted(() => {
   fetchData();
+  interval = setInterval(fetchData, REFRESH_PERIOD_MS);
 });
 
-const interval = setInterval(() => {
-  fetchData();
-}, 5000); // Refresh period 1000 millisecondes
+onBeforeUnmount(() => clearInterval(interval));
 </script>
 
 <template>

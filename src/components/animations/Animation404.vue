@@ -4,7 +4,6 @@
 * @Description: 
 -->
 <script setup lang="ts">
-import { Vue3Lottie } from "vue3-lottie";
 const props = defineProps({
   size: {
     type: Number,
@@ -14,8 +13,9 @@ const props = defineProps({
 </script>
 
 <template>
-  <Vue3Lottie
-    animationLink="https://assets2.lottiefiles.com/packages/lf20_cr9slsdh.json"
+  <img
+    src="@/assets/images/404.svg"
+    alt="404"
     :height="props.size"
     :width="props.size"
   />
