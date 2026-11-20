@@ -11,10 +11,6 @@ import { Icon } from "@iconify/vue";
 const customizeTheme = useCustomizeThemeStore();
 const navigation = ref(configs.navigation);
 
-const openGithubSite = () => {
-  window.open("https://github.com/yangjiakai", "_blank");
-};
-
 onMounted(() => {
   scrollToBottom();
 });

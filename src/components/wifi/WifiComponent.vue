@@ -1,10 +1,8 @@
 <script lang="ts">
-import axios from "axios";
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { api } from "@/api/client";
+import { ref, onMounted } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-const wifiUrl = "http://" + location.hostname + ":8456/getScan";
-const setWifiUrl = "http://" + location.hostname + ":8456/wifi";
 
 export default {
   setup() {
@@ -12,12 +10,10 @@ export default {
     const password = ref("");
     const ssids = ref(["Scan in progress..."]);
 
-    console.log("setup:");
     const fetchData = () => {
-      axios
-        .get(wifiUrl)
+      api
+        .get("/getScan")
         .then((response) => {
-          console.log("fetchData:", response.data);
           ssids.value = response.data.map(
             (item: { name: string }) => item.name,
           );
@@ -33,17 +29,19 @@ export default {
         password: password.value,
       };
 
-      axios
-        .post(setWifiUrl, formData)
-        .then((response) => {
-          console.log("POST reply:", response.data);
+      api
+        .post("/wifi", formData)
+        .then(() => {
+          toast.success(
+            "WIFI has been configured, you will loose the Access Point",
+          );
         })
         .catch((error) => {
           console.error("POST error:", error);
+          toast.error(
+            error.response?.data?.error ?? "WIFI configuration failed",
+          );
         });
-      toast.success(
-        "WIFI has been configured, you will loose the Access Point",
-      );
     };
 
     onMounted(() => {
